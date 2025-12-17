@@ -13,9 +13,6 @@
             <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#importSubscriberModal">
                 <i class="bi bi-upload me-2"></i>Import
             </button>
-            <button class="btn btn-outline-secondary">
-                <i class="bi bi-download me-2"></i>Export
-            </button>
             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#activateSubscriberModal">
                 <i class="bi bi-plus-lg me-2"></i>Activate Subscriber
             </button>
@@ -62,11 +59,10 @@
                                     <td>{{ $subscriber->imei }}</td>
                                     <td>{{ $subscriber->label }}</td>
                                     <td>
-                                        <button class="btn btn-sm btn-primary p-1 px-2"
-                                            onclick="viewSubscriber({{ $subscriber->id }})" data-bs-toggle="modal"
-                                            data-bs-target="#viewSubscriberModal">
+                                        <a href="{{ route('admin.subscribers.show', $subscriber->id) }}"
+                                            class="btn btn-sm btn-primary p-1 px-2">
                                             <i class="bi bi-eye"></i>
-                                        </button>
+                                        </a>
                                     </td>
                                 </tr>
                             @empty
@@ -188,119 +184,6 @@
         </div>
     </div>
 
-    <!-- View Subscriber Modal -->
-    <div class="modal fade" id="viewSubscriberModal" tabindex="-1" aria-labelledby="viewSubscriberModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="viewSubscriberModalLabel">Subscriber Details</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="row g-3">
-                        <!-- Subscriber Information -->
-                        <div class="col-12">
-                            <h6 class="fw-bold mb-3">Subscriber Information</h6>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">SIM</label>
-                            <p id="viewSim" class="form-control-plaintext">-</p>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">ZIP</label>
-                            <p id="viewZip" class="form-control-plaintext">-</p>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">Plan SOC</label>
-                            <p id="viewPlanSoc" class="form-control-plaintext">-</p>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">IMEI</label>
-                            <p id="viewImei" class="form-control-plaintext">-</p>
-                        </div>
-
-                        <div class="col-12">
-                            <label class="form-label fw-bold">Label</label>
-                            <p id="viewLabel" class="form-control-plaintext">-</p>
-                        </div>
-
-                        <!-- E911 Address Information -->
-                        <div class="col-12 mt-4">
-                            <h6 class="fw-bold mb-3">E911 Address</h6>
-                        </div>
-
-                        <div class="col-12">
-                            <label class="form-label fw-bold">Street Address 1</label>
-                            <p id="viewStreet1" class="form-control-plaintext">-</p>
-                        </div>
-
-                        <div class="col-12">
-                            <label class="form-label fw-bold">Street Address 2</label>
-                            <p id="viewStreet2" class="form-control-plaintext">-</p>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">City</label>
-                            <p id="viewCity" class="form-control-plaintext">-</p>
-                        </div>
-
-                        <div class="col-md-3">
-                            <label class="form-label fw-bold">State</label>
-                            <p id="viewState" class="form-control-plaintext">-</p>
-                        </div>
-
-                        <div class="col-md-3">
-                            <label class="form-label fw-bold">ZIP Code</label>
-                            <p id="viewZipCode" class="form-control-plaintext">-</p>
-                        </div>
-
-                        <div class="col-12 mt-4">
-                            <h6 class="fw-bold mb-3">API Response Data</h6>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">Transaction ID</label>
-                            <p id="viewTransactionId" class="form-control-plaintext">-</p>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">MSISDN</label>
-                            <p id="viewMsisdn" class="form-control-plaintext">-</p>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">ICCID</label>
-                            <p id="viewIccid" class="form-control-plaintext">-</p>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">Account ID</label>
-                            <p id="viewAccountId" class="form-control-plaintext">-</p>
-                        </div>
-
-                        <div class="col-12">
-                            <label class="form-label fw-bold">API Status</label>
-                            <p id="viewApiStatus" class="form-control-plaintext">-</p>
-                        </div>
-
-                        <div class="col-12 mt-4">
-                            <label class="form-label fw-bold">Created At</label>
-                            <p id="viewCreatedAt" class="form-control-plaintext">-</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Import Subscriber Modal -->
     <div class="modal fade" id="importSubscriberModal" tabindex="-1" aria-labelledby="importSubscriberModalLabel"
         aria-hidden="true">
@@ -319,16 +202,15 @@
                             <h6 class="alert-heading"><i class="bi bi-info-circle me-2"></i>Import Instructions</h6>
                             <p class="mb-2">Upload a CSV or Excel file with the following columns:</p>
                             <ul class="mb-2">
-                                <li><strong>sim</strong> - SIM number (required)</li>
-                                <li><strong>zip</strong> - ZIP code (required)</li>
-                                <li><strong>plan_soc</strong> - Plan SOC (required)</li>
-                                <li><strong>imei</strong> - IMEI number (required)</li>
-                                <li><strong>label</strong> - Label (required)</li>
-                                <li><strong>e911_address_street1</strong> - Street Address 1 (required)</li>
-                                <li><strong>e911_address_street2</strong> - Street Address 2 (optional)</li>
-                                <li><strong>e911_address_city</strong> - City (required)</li>
-                                <li><strong>e911_address_state</strong> - State (required)</li>
-                                <li><strong>e911_address_zip</strong> - ZIP Code (required)</li>
+                                <li><strong>Customer Name</strong> - Customer name/label (required)</li>
+                                <li><strong>SIM Number (ICCID)</strong> - SIM number (required)</li>
+                                <li><strong>IMEI</strong> - IMEI number (required)</li>
+                                <li><strong>Rate Plan</strong> - Plan SOC (required)</li>
+                                <li><strong>E911 Street Address</strong> - Street Address (required)</li>
+                                <li><strong>E911 City</strong> - City (required)</li>
+                                <li><strong>E911 State</strong> - State (required)</li>
+                                <li><strong>E911 ZIP</strong> - ZIP Code (required)</li>
+                                <li><strong>Customer Email</strong> - Email (optional)</li>
                             </ul>
                             <a href="{{ route('admin.activate-subscriber.template') }}"
                                 class="btn btn-sm btn-outline-primary">
@@ -390,35 +272,6 @@
 
 @push('scripts')
     <script>
-        // View subscriber details
-        function viewSubscriber(id) {
-            fetch(`{{ url('admin/subscribers') }}/${id}`)
-                .then(response => response.json())
-                .then(subscriber => {
-                    document.getElementById('viewSim').textContent = subscriber.sim;
-                    document.getElementById('viewZip').textContent = subscriber.zip;
-                    document.getElementById('viewPlanSoc').textContent = subscriber.plan_soc;
-                    document.getElementById('viewImei').textContent = subscriber.imei;
-                    document.getElementById('viewLabel').textContent = subscriber.label;
-                    document.getElementById('viewStreet1').textContent = subscriber.e911_address_street1;
-                    document.getElementById('viewStreet2').textContent = subscriber.e911_address_street2 || 'N/A';
-                    document.getElementById('viewCity').textContent = subscriber.e911_address_city;
-                    document.getElementById('viewState').textContent = subscriber.e911_address_state;
-                    document.getElementById('viewZipCode').textContent = subscriber.e911_address_zip;
-                    document.getElementById('viewTransactionId').textContent = subscriber.transaction_id || 'N/A';
-                    document.getElementById('viewMsisdn').textContent = subscriber.msisdn || 'N/A';
-                    document.getElementById('viewIccid').textContent = subscriber.iccid || 'N/A';
-                    document.getElementById('viewAccountId').textContent = subscriber.account_id || 'N/A';
-                    document.getElementById('viewApiStatus').textContent = subscriber.api_status || 'N/A';
-                    document.getElementById('viewCreatedAt').textContent = new Date(subscriber.created_at)
-                        .toLocaleString();
-                })
-                .catch(error => {
-                    console.error('Error loading subscriber:', error);
-                    alert('Error loading subscriber details');
-                });
-        }
-
         // Import form handling
         document.getElementById('importSubscriberForm').addEventListener('submit', function(e) {
             const fileInput = document.getElementById('importFile');

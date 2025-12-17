@@ -40,7 +40,7 @@ class ActivateSubscriberController extends Controller
     public function show($id)
     {
         $subscriber = Subscriber::findOrFail($id);
-        return response()->json($subscriber);
+        return view('admin.subscriber-details', compact('subscriber'));
     }
 
     private function verifySubscriberWithAPI($data)
@@ -119,7 +119,7 @@ class ActivateSubscriberController extends Controller
                 'sim' => 'required|string|max:255',
                 'zip' => 'required|string|max:255',
                 'plan_soc' => 'required|string|max:255',
-                'imei' => 'required|string|max:255',
+                'imei' => 'nullable|string|max:255',
                 'label' => 'required|string|max:255',
                 'e911AddressStreet1' => 'required|string|max:255',
                 'e911AddressStreet2' => 'nullable|string|max:255',
@@ -180,16 +180,15 @@ class ActivateSubscriberController extends Controller
         ];
 
         $columns = [
-            'sim',
-            'zip',
-            'plan_soc',
-            'imei',
-            'label',
-            'e911_address_street1',
-            'e911_address_street2',
-            'e911_address_city',
-            'e911_address_state',
-            'e911_address_zip'
+            'Customer Name',
+            'SIM Number (ICCID)',
+            'IMEI',
+            'Rate Plan',
+            'E911 Street Address',
+            'E911 City',
+            'E911 State',
+            'E911 ZIP',
+            'Customer Email'
         ];
 
         $callback = function() use ($columns) {
@@ -198,16 +197,15 @@ class ActivateSubscriberController extends Controller
             
             // Add sample row
             fputcsv($file, [
+                'John Doe',
                 '89012345678901234567',
-                '12345',
-                'PLAN001',
                 '123456789012345',
-                'Sample Label',
+                'PLAN001',
                 '123 Main Street',
-                'Apt 4B',
                 'New York',
                 'NY',
-                '10001'
+                '10001',
+                'john@example.com'
             ]);
             
             fclose($file);
@@ -354,18 +352,39 @@ class ActivateSubscriberController extends Controller
         $extension = strtolower($file->getClientOriginalExtension());
         $data = [];
 
+        // Column mapping: CSV header => internal field name
+        $columnMapping = [
+            'customer name' => 'label',
+            'sim number (iccid)' => 'sim',
+            'imei' => 'imei',
+            'rate plan' => 'plan_soc',
+            'e911 street address' => 'e911_address_street1',
+            'e911 city' => 'e911_address_city',
+            'e911 state' => 'e911_address_state',
+            'e911 zip' => 'e911_address_zip',
+            'customer email' => 'email',
+        ];
+
         if ($extension === 'csv') {
             $handle = fopen($file->getRealPath(), 'r');
             $headers = null;
             
             while (($row = fgetcsv($handle)) !== false) {
                 if ($headers === null) {
-                    $headers = array_map('strtolower', array_map('trim', $row));
+                    // Map CSV headers to internal field names
+                    $headers = [];
+                    foreach ($row as $header) {
+                        $normalizedHeader = strtolower(trim($header));
+                        $headers[] = $columnMapping[$normalizedHeader] ?? $normalizedHeader;
+                    }
                     continue;
                 }
                 
                 if (count($row) === count($headers)) {
-                    $data[] = array_combine($headers, array_map('trim', $row));
+                    $rowData = array_combine($headers, array_map('trim', $row));
+                    // Extract ZIP from E911 ZIP for the main zip field
+                    $rowData['zip'] = $rowData['e911_address_zip'] ?? '';
+                    $data[] = $rowData;
                 }
             }
             
@@ -385,21 +404,19 @@ class ActivateSubscriberController extends Controller
     private function validateImportRow($row)
     {
         $required = [
-            'sim',
-            'zip', 
-            'plan_soc',
-            'imei',
-            'label',
-            'e911_address_street1',
-            'e911_address_city',
-            'e911_address_state',
-            'e911_address_zip'
+            'sim' => 'SIM Number (ICCID)',
+            'plan_soc' => 'Rate Plan',
+            'label' => 'Customer Name',
+            'e911_address_street1' => 'E911 Street Address',
+            'e911_address_city' => 'E911 City',
+            'e911_address_state' => 'E911 State',
+            'e911_address_zip' => 'E911 ZIP'
         ];
 
         $missing = [];
-        foreach ($required as $field) {
+        foreach ($required as $field => $displayName) {
             if (empty($row[$field] ?? null)) {
-                $missing[] = $field;
+                $missing[] = $displayName;
             }
         }
 
